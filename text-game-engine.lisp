@@ -23,7 +23,34 @@
 ;; Retrieve edges associated with location
 ;; Create a description of each edge
 ;; Join the descriptions
-;; #' foo is expanded to (function foo)
+;; #'foo is expanded to (function foo)
 (defun describe-paths (location edges)
   (apply #'append (mapcar #'describe-path (cdr (assoc location edges)))))
 
+;; list of objects
+(defparameter *objects* '(whiskey bucket frog chain))
+
+(defparameter *object-locations* '((whiskey living-room)
+				   (bucket living-room)
+				   (chain garden)
+				   (frog garden)))
+
+;; filter objects at a specific location
+(defun objects-at (loc objs obj-locs)
+  (labels ((at-loc-p (obj)
+	     (eq (cadr (assoc obj obj-locs)) loc)))
+    (remove-if-not #'at-loc-p objs)))
+
+;; friendly description of objects a specific loc
+(defun describe-objects (loc objs obj-loc)
+  (labels ((describe-obj (obj)
+	     `(you see a ,obj on the floor.)))
+    (apply #'append (mapcar #'describe-obj (objects-at loc objs obj-loc)))))
+
+(defparameter *location* 'living-room)
+
+;; give a complete description of where player is
+(defun look ()
+  (append (describe-location *location* *nodes*)
+	  (describe-paths *location* *edges*)
+	  (describe-objects *location* *objects* *object-locations*)))
