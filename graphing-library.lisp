@@ -43,3 +43,21 @@
   (nodes->dot nodes)
   (edges->dot edges)
   (princ "}"))
+
+
+;; turn the dot file into a picture
+;; requires the graphviz package with the executable `/usr/bin/dot`
+(defun dot->png (fname thunk)
+  (with-open-file (*standard-output*
+		   fname
+		   :direction :output
+		   :if-exists :supersede)
+    (funcall thunk))
+  (sb-ext:run-program "/usr/bin/dot"  `("-Tpng" "-O"  ,fname) :output *standard-output*))
+
+;; turn whole graph into a picture
+;; fname is a full path to the output file
+(defun graph->png (fname nodes edges)
+  (dot->png fname
+	    (lambda ()
+	      (graph->dot nodes edges))))
