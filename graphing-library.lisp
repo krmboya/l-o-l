@@ -1,6 +1,7 @@
 ;; substitutes non-alphanumeric characters in node names to give valid DOT names
 (defun dot-name (exp)
   (substitute-if #\_ (complement #'alphanumericp) (prin1-to-string exp)))
+  ;; prin1, output suitable for input to read
 
 (defparameter *max-label-length* 30)
 
@@ -15,9 +16,9 @@
 
 ;; generate dot info from nodes
 (defun nodes->dot (nodes)
-  (mapc (lambda (node)
+  (mapc (lambda (node)  ;; mapc, results of applying the function are not accumulated
 	  (fresh-line)
-	  (princ (dot-name (car node)))
+	  (princ (dot-name (car node)))  ;; princ, output suitable for people (no escape chars)
 	  (princ "[label=\"")
 	  (princ (dot-label node))
 	  (princ "\"]"))
@@ -48,7 +49,7 @@
 ;; turn the dot file into a picture
 ;; requires the graphviz package with the executable `/usr/bin/dot`
 (defun dot->png (fname thunk)
-  (with-open-file (*standard-output*
+  (with-open-file (*standard-output* ;; temporarily bind to different stream
 		   fname
 		   :direction :output
 		   :if-exists :supersede)
