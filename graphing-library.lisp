@@ -1,7 +1,7 @@
 ;; substitutes non-alphanumeric characters in node names to give valid DOT names
 (defun dot-name (exp)
   (substitute-if #\_ (complement #'alphanumericp) (prin1-to-string exp)))
-  ;; prin1, output suitable for input to read
+  ;; prin1, output suitable for input to read, no newlines
 
 (defparameter *max-label-length* 30)
 
@@ -24,7 +24,7 @@
 	  (princ "\"]"))
 	nodes))
 
-;; generate dot info from edges
+;; generate dot info from edges (directed)
 (defun edges->dot (edges)
   (mapc (lambda (node)
 	  (mapc (lambda (edge)
@@ -37,6 +37,21 @@
 		  (princ "\"]"))
 		(cdr node)))
 	edges))
+
+;; generate dot info from edges (undirected)
+(defun uedges->dot (edges)
+  (maplist (lambda (lst)
+	     (mapc (lambda (edge)
+		     (unless (assoc (car edge) (cdr lst))
+		       (fresh-line)
+		       (princ (dot-name (caar lst)))
+		       (princ "--")
+		       (princ (dot-name (car edge)))
+		       (princ "[label=\"")
+		       (princ (dot-label (cdr edge)))
+		       (princ "\"];")))
+		   (cdar lst)))
+	   edges))
 
 ;; generate all dot data
 (defun graph->dot (nodes edges)
@@ -62,3 +77,17 @@
   (dot->png fname
 	    (lambda ()
 	      (graph->dot nodes edges))))
+
+
+;; generate dot info of an undirected graph
+(defun ugraph->dot (nodes edges)
+  (princ "graph{")
+  (nodes->dot nodes)
+  (uedges->dot edges)
+  (princ "}"))
+
+;; generate an undirected graph
+(defun ugraph->png (fname nodes edges)
+  (dot->png fname
+	    (lambda ()
+	      (ugraph->dot nodes edges))))
