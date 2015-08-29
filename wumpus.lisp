@@ -1,0 +1,41 @@
+(load "graph-util")
+
+(defparameter *congestion-city-nodes* nil)
+(defparameter *congestion-city-edges* nil)
+(defparameter *visited-nodes* nil)
+(defparameter *node-num* 30)
+(defparameter *edge-num* 45)
+(defparameter *worm-num* 3)
+(defparameter *cop-odds* 15)
+
+;; Returns a random node (range 1 to *node-num*)
+(defun random-node ()
+  (1+ (random *node-num*)))
+
+;; Returns 2 directed edges btn two nodes
+(defun edge-pair (a b)
+  (unless (eql a b)
+    (list (cons a b) (cons b a))))
+
+;; generate random *edge-num* pairs of edges
+(defun make-edge-list ()
+  (apply #'append (loop repeat *edge-num*
+		     collect (edge-pair (random-node) (random-node)))))
+
+;; Finds all direct edges to `node`
+(defun direct-edges (node edge-list)
+  (remove-if-not (lambda (x)
+		   (eql (car x) node))
+		 edge-list))
+
+;; Finds all nodes connected to `node`
+(defun get-connected (node edge-list)
+  (let ((visited nil))
+    (labels ((traverse (node)
+	       (unless (member node visited)
+		 (push node visited)
+		 (mapc (lambda (edge)
+			 (traverse (cdr edge)))
+		       (direct-edges node edge-list)))))
+      (traverse node))
+    visited))
