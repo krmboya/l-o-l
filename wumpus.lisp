@@ -29,6 +29,7 @@
 		 edge-list))
 
 ;; Finds all nodes connected to `node`
+;; DFS
 (defun get-connected (node edge-list)
   (let ((visited nil))
     (labels ((traverse (node)
@@ -39,3 +40,16 @@
 		       (direct-edges node edge-list)))))
       (traverse node))
     visited))
+
+(defun find-islands (nodes edge-list)
+  (let ((islands nil))
+    (labels ((find-island (nodes)
+	       (let* ((connected (get-connected (car nodes) edge-list))
+		      (unconnected (set-difference nodes connected)))
+		 (push connected islands)
+		 (when unconnected
+		   (find-island unconnected)))))
+      (find-island nodes))
+    islands))
+
+      
