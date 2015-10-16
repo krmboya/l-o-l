@@ -41,6 +41,7 @@
       (traverse node))
     visited))
 
+;; Return a list of islands amongst `nodes`
 (defun find-islands (nodes edge-list)
   (let ((islands nil))
     (labels ((find-island (nodes)
@@ -52,4 +53,12 @@
       (find-island nodes))
     islands))
 
-      
+;; Connects `islands` with bridges
+(defun connect-with-bridges (islands)
+  (when (cdr islands)
+    (append (edge-pair (caar islands) (caadr islands))
+	    (connect-with-bridges (cdr islands)))))
+
+;; Connects `islands` in `nodes` with bridges
+(defun connect-all-islands (nodes edge-list)
+  (append (connect-with-bridges (find-islands nodes edge-list)) edge-list))
