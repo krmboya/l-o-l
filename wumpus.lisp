@@ -72,3 +72,13 @@
 				(zerop (random *cop-odds*)))
 			      edge-list)))
     (add-cops (edges-to-alist edge-list) cops)))
+
+;; convert edges to alist
+(defun edges-to-alist (edge-list)
+  (mapcar (lambda (node1)
+	    (cons node1
+		  (mapcar (lambda (edge)
+			    (list (cdr edge)))
+			  (remove-duplicates (direct-edges node1 edge-list)
+					     :test #'equal))))
+	  (remove-duplicates (mapcar #'car edge-list))))
