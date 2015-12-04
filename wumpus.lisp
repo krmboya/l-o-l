@@ -82,3 +82,19 @@
 			  (remove-duplicates (direct-edges node1 edge-list)
 					     :test #'equal))))
 	  (remove-duplicates (mapcar #'car edge-list))))
+
+;; add cops to edges
+(defun add-cops (edge-alist edges-with-cops)
+  (mapcar (lambda (x)
+	    (let ((node1 (car x))
+		  (node1-edges (cdr x)))
+	      (cons node1
+		    (mapcar (lambda (edge)
+			      (let ((node2 (car edge)))
+				(if (intersection (edge-pair node1 node2)
+						  edges-with-cops
+						  :test #'equal)
+				    (list node2 'cops)
+				    edge)))
+			    node1-edges))))
+	    edge-alist)))
