@@ -68,7 +68,7 @@
   (let* ((nodes (loop for i from 1 to *node-num*
 		   collect i))
 	 (edge-list (connect-all-islands nodes (make-edge-list)))
-	 (cops (remove-if-not (lambda (s)
+	 (cops (remove-if-not (lambda (x)
 				(zerop (random *cop-odds*)))
 			      edge-list)))
     (add-cops (edges-to-alist edge-list) cops)))
@@ -97,4 +97,21 @@
 				    (list node2 'cops)
 				    edge)))
 			    node1-edges))))
-	    edge-alist)))
+	  edge-alist))
+
+
+;; Gives the neighbouring nodes
+(defun neighbours (node edge-alist)
+  (mapcar #'car (cdr (assoc node edge-alist))))
+
+
+;; Indicates if a and b are directly connected
+(defun within-one (a b edge-alist)
+  (member b (neighbours a edge-alist)))
+
+;; Indicates if a and b are connected by at most one node
+(defun within-two (a b edge-alist)
+  (or (within-one a b edge-alist)
+      (some (lambda (x)  ;; some returns True if some invocation of lambda on seq return True
+	      (within-one x b edge-alist))
+	    (neighbours a edge-alist))))
