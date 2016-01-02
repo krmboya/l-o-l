@@ -115,3 +115,21 @@
       (some (lambda (x)  ;; some returns True if some invocation of lambda on seq return True
 	      (within-one x b edge-alist))
 	    (neighbours a edge-alist))))
+
+(defun make-city-nodes (edge-alist)
+  (let ((wumpus (random-node))
+	(glow-worms (loop for i below *worm-num*
+		       collect (random-node))))
+    (loop for n from 1 to *node-num*
+       collect (append (list n)
+		       (cond ((eql n wumpus) '(wumpus))
+			     ((within-two n wumpus edge-alist) '(blood!)))
+		       (cond ((member n glow-worms)
+			      '(glow-worm))
+			     ((some (lambda (worm)
+				      (within-one n worm edge-alist))
+				    glow-worms)
+			      '(lights!)))
+		       (when (some #'cdr (cdr (assoc n edge-alist)))
+			 '(sirens!))))))
+    
