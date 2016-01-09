@@ -3,6 +3,7 @@
 (defparameter *congestion-city-nodes* nil)
 (defparameter *congestion-city-edges* nil)
 (defparameter *visited-nodes* nil)
+(defparameter *player-pos* nil)
 (defparameter *node-num* 30)
 (defparameter *edge-num* 45)
 (defparameter *worm-num* 3)
@@ -116,6 +117,7 @@
 	      (within-one x b edge-alist))
 	    (neighbours a edge-alist))))
 
+;; associate nodes with metadata
 (defun make-city-nodes (edge-alist)
   (let ((wumpus (random-node))
 	(glow-worms (loop for i below *worm-num*
@@ -132,7 +134,8 @@
 			      '(lights!)))
 		       (when (some #'cdr (cdr (assoc n edge-alist)))
 			 '(sirens!))))))
-    
+
+;; Initialize new game
 (defun new-game ()
   (setf *congestion-city-edges* (make-city-edges))
   (setf *congestion-city-nodes* (make-city-nodes *congestion-city-edges*))
@@ -143,7 +146,8 @@
 (defun find-empty-node ()
   (let ((x (random-node)))
     (if (cdr (assoc x *congestion-city-nodes*))
-	(find-empty-nodes)
+	(find-empty-node)
 	x)))
 
-	
+(defun draw-city ()
+  (ugraph->png "/home/krm/Desktop/city" *congestion-city-nodes* *congestion-city-edges*))

@@ -49,7 +49,7 @@
 (defun uedges->dot (edges)
   (maplist (lambda (lst)
 	     (mapc (lambda (edge)
-		     (unless (assoc (car edge) (cdr lst))
+		     (unless (assoc (car edge) (cdr lst)) ;; skip edge described later in list
 		       (fresh-line)
 		       (princ (dot-name (caar lst)))
 		       (princ "--")
