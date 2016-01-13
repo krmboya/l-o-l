@@ -113,7 +113,8 @@
 ;; Indicates if a and b are connected by at most one node
 (defun within-two (a b edge-alist)
   (or (within-one a b edge-alist)
-      (some (lambda (x)  ;; some returns True if some invocation of lambda on seq return True
+      ;; some returns True if some invocation of lambda on seq return True
+      (some (lambda (x)  
 	      (within-one x b edge-alist))
 	    (neighbours a edge-alist))))
 
@@ -150,4 +151,24 @@
 	x)))
 
 (defun draw-city ()
-  (ugraph->png "/home/krm/Desktop/city" *congestion-city-nodes* *congestion-city-edges*))
+  (ugraph->png "/home/krm/Desktop/city" 
+	       *congestion-city-nodes* 
+	       *congestion-city-edges*))
+
+;; returns a list of visited all neighbouring nodes
+(defun known-city-nodes ()
+  (mapcar (lambda (node)
+	    (if (member node *visited-nodes*)
+		(let ((n (assoc node *congestion-city-nodes*)))
+		  (if (eql node *player-pos*)
+		      (append n '(*))
+		      n))
+		(list node '?)))
+	  (remove-duplicates
+	   (append *visited-nodes*
+		   (mapcan (lambda (node) ;; concatenates lists of neighbours
+			     ;; get all neighbours to node
+			     (mapcar #'car
+				     (cdr (assoc node
+						 *congestion-city-edges*))))
+			   *visited-nodes*)))))
