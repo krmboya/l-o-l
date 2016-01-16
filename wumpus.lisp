@@ -142,7 +142,8 @@
   (setf *congestion-city-nodes* (make-city-nodes *congestion-city-edges*))
   (setf *player-pos* (find-empty-node))
   (setf *visited-nodes* (list *player-pos*))
-  (draw-city))
+  (draw-city)
+  (draw-known-city))
 
 (defun find-empty-node ()
   (let ((x (random-node)))
@@ -158,6 +159,7 @@
 ;; returns a list of visited all neighbouring nodes
 (defun known-city-nodes ()
   (mapcar (lambda (node)
+	    ;; show metadata if visited, append * if curr pos, append ? otherwis
 	    (if (member node *visited-nodes*)
 		(let ((n (assoc node *congestion-city-nodes*)))
 		  (if (eql node *player-pos*)
@@ -172,3 +174,18 @@
 				     (cdr (assoc node
 						 *congestion-city-edges*))))
 			   *visited-nodes*)))))
+
+
+(defun known-city-edges ()
+  (mapcar (lambda (node)
+	    (cons node (mapcar (lambda (x)
+				 (if (member (car x) *visited-nodes*)
+				     x
+				     (list (car x))))
+			       (cdr (assoc node *congestion-city-edges*)))))
+	  *visited-nodes*))
+
+(defun draw-known-city ()
+  (ugraph->png "/home/krm/Desktop/known-city" 
+	       (known-city-nodes) 
+	       (known-city-edges)))
