@@ -49,3 +49,25 @@
   (princ *player-agility*)
   (princ ", and a strength of ")
   (princ *player-strength*))
+
+(defun player-attack ()
+  (fresh-line)
+  (princ "Attach style: [s]tab [d]ouble swing [r]oundhouse:")
+  (case (read)
+    (s (monster-hit (pick-monster)
+		    (+ 2 (randval (ash *player-strength* -1)))))
+    (d (let ((x (randval (truncate (/ *player-strength* 6)))))
+	 (princ "Your double swing has a strength of ")
+	 (princ x)
+	 (fresh-line)
+	 (monster-hit (pick-monster) x)
+	 (unless (monsters-dead)
+	   (monster-hit (pick-monster) x))))
+    (otherwise (dotimes (x (1+ (randval (truncate (/ *player-strength* 3)))))
+		 (unless (monsters-dead)
+		   (monster-hit (random-monster) 1))))))
+
+
+;; random number helper function
+(defun randval (n)
+  (1+ (random (max 1 n))))
