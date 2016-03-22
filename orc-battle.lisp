@@ -123,6 +123,9 @@
 	       (princ "**dead**")
 	       (progn (princ "(Health=")
 		      (princ (monster-health m))
-		      (princ "( ")
+		      (princ ") ")
 		      (monster-show m))))
 	 *monsters*)))
+
+
+(defstruct monster (health (randval 10)))
