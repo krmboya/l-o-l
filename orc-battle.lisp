@@ -130,6 +130,9 @@
 ;; monster creation
 (defstruct monster (health (randval 10)))
 
+;; generic monster methods
+;; -----------------------
+
 (defmethod monster-hit (m x)
   (decf (monster-health m) x)  ;; decrement health by x
   (if (monster-dead m)
@@ -141,17 +144,17 @@
 	     (princ ", knocking off ")
 	     (princ x)
 	     (princ " health points! "))))
-		  
 
 (defmethod monster-show (m)
   (princ "A fierce ")
   (princ (type-of m)))
 
-
 (defmethod monster-attack (m))
 
-;; define orc inheriting from monster
+
+;; define type orc inheriting from monster
 (defstruct (orc (:include monster)) (club-level (randval 8)))
+
 (push #'make-orc *monster-builders*) ;; append to *monster-builers* list
 
 
