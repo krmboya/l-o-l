@@ -20,7 +20,7 @@
 ;; Structure describing animal
 (defstruct animal x y energy dir genes)
 
-;; initialize variable animals with a list containing one animal
+;; initialize animals with a list containing one animal
 (defparameter *animals* 
     (list (make-animal :x      (ash *width*  -1)
                        :y      (ash *height* -1)
@@ -29,11 +29,15 @@
                        :genes  (loop repeat 8
 				  collecting (1+ (random 10))))))
 
-
+;; change an animals x, y coordinate based on current direction
 (defun move (animal)
   (let ((dir (animal-dir animal))
         (x (animal-x animal))
         (y (animal-y animal)))
+    ;; direction indicators (animal at the center)
+    ;;  0 1 2
+    ;;  7 a 3
+    ;;  6 5 4
     (setf (animal-x animal) (mod (+ x
                                     (cond ((and (>= dir 2) (< dir 5)) 1)
                                           ((or (= dir 1) (= dir 5)) 0)
