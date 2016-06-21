@@ -53,12 +53,22 @@
     (decf (animal-energy animal))))
 
 
+;; Changes an animal's current direction based on genes
 (defun turn (animal)
+  ;; x - random value btn 0 and sum of all genes
   (let ((x (random (apply #'+ (animal-genes animal)))))
     (labels ((angle (genes x)
+	       ;; Returns a value btn 0 and 7 to indicate turning direction
                (let ((xnu (- x (car genes))))
                  (if (< xnu 0)
                      0
                      (1+ (angle (cdr genes) xnu))))))
         (setf (animal-dir animal)
               (mod (+ (animal-dir animal) (angle (animal-genes animal) x)) 8)))))
+
+;; Increment animals energy if plant exists in position
+(defun eat (animal)
+  (let ((pos (cons (animal-x animal) (animal-y animal))))
+    (when (gethash pos *plants*)
+      (incf (animal-energy animal) *plant-energy*)
+      (remhash pos *plants*))))
