@@ -57,8 +57,8 @@
 (defun turn (animal)
   ;; x - random value btn 0 and sum of all genes
   (let ((x (random (apply #'+ (animal-genes animal)))))
+    ;; Returns a value btn 0 and 7 to indicate turning direction
     (labels ((angle (genes x)
-	       ;; Returns a value btn 0 and 7 to indicate turning direction
                (let ((xnu (- x (car genes))))
                  (if (< xnu 0)
                      0
@@ -66,9 +66,26 @@
         (setf (animal-dir animal)
               (mod (+ (animal-dir animal) (angle (animal-genes animal) x)) 8)))))
 
+
 ;; Increment animals energy if plant exists in position
 (defun eat (animal)
   (let ((pos (cons (animal-x animal) (animal-y animal))))
     (when (gethash pos *plants*)
       (incf (animal-energy animal) *plant-energy*)
       (remhash pos *plants*))))
+
+
+(defparameter *reproduction-energy* 200)
+
+;; Creates a copy of animal (with mutated genes)
+(defun reproduce (animal)
+  (let ((e (animal-energy animal)))
+    (when (>= e *reproduction-energy*)  ;; only reproduce if above threshold
+      (setf (animal-energy animal) (ash e -1))  ;; halve the animal energy
+      (let ((animal-nu (copy-structure animal))  ;; shallow copy of animal
+            (genes     (copy-list (animal-genes animal)))
+            (mutation  (random 8)))  ;; pick random gene to mutate
+	;; mutate selected gene to +/- 1 original value
+        (setf (nth mutation genes) (max 1 (+ (nth mutation genes) (random 3) -1)))
+        (setf (animal-genes animal-nu) genes)
+        (push animal-nu *animals*)))))
