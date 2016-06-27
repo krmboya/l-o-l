@@ -7,7 +7,7 @@
 ;; use function equal for matching keys
 (defparameter *plants* (make-hash-table :test #'equal))
 
-;; Creates plants randomly in specified region of map
+;; Creates plant randomly in specified region of map
 (defun random-plant (left top width height)
    (let ((pos (cons (+ left (random width)) (+ top (random height)))))
         (setf (gethash pos *plants*) t)))
@@ -89,3 +89,19 @@
         (setf (nth mutation genes) (max 1 (+ (nth mutation genes) (random 3) -1)))
         (setf (animal-genes animal-nu) genes)
         (push animal-nu *animals*)))))
+
+
+;; Updates the world
+(defun update-world ()
+  ;; remove dead animals
+  (setf *animals* (remove-if (lambda (animal)
+                                 (<= (animal-energy animal) 0))
+                             *animals*))
+  ;; perform daily animal activities
+  (mapc (lambda (animal)
+          (turn animal)
+          (move animal)
+          (eat animal)
+          (reproduce animal))
+        *animals*)
+  (add-plants))
