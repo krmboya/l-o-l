@@ -105,3 +105,42 @@
           (reproduce animal))
         *animals*)
   (add-plants))
+
+;; Draws a  snapshot of the world (plant, animal location)
+(defun draw-world ()
+  (loop for y
+     below *height*
+     ;; begin row
+     do (progn (fresh-line)
+	       (princ "|")
+	       (loop for x
+		  below *width*
+		  ;; M if at least 1 animal exists
+		  ;; * if a plant exists
+		  ;; space otherwise
+		  do (princ (cond ((some (lambda (animal)
+					   (and (= (animal-x animal) x)
+						(= (animal-y animal) y)))
+					 *animals*)
+				   #\M)
+				  ((gethash (cons x y) *plants*) #\*)
+				  (t #\space))))
+	       (princ "|"))))
+
+;; Evolve world according to user input
+(defun evolution ()
+  (draw-world)
+  (fresh-line)
+  (let ((str (read-line)))
+    (cond ((equal str "quit") ())  ;; quit command
+          (t (let ((x (parse-integer str :junk-allowed t)))
+               (if x
+		   ;; x is an integer, evolve the world x times
+                   (loop for i
+                      below x
+                      do (update-world)
+                      if (zerop (mod i 1000))
+                      do (princ #\.)) ;; print . after every thousandth
+		   ;; update only once
+                   (update-world))
+               (evolution))))))
