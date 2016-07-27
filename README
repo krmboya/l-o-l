@@ -1,1 +1,7 @@
-Simple Lisp programs
+A collection of games written in Common Lisp
+
+Based on the book Land of Lisp by Conrad Barski
+http://landoflisp.com/
+
+Ongoing work to annotate them with comments and make
+them work with the the SBCL implementation.
