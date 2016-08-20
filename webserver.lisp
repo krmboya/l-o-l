@@ -32,3 +32,15 @@
 		 (otherwise (cons (car lst) (f (cdr lst))))))))
     ;; convert string to list, process it, then back to string
     (coerce (f (coerce s 'list)) 'string)))
+
+(defun parse-params (s)
+  "Returns list of conses each representing a key value pair from query params"
+   (let* ((i1 (position #\= s)) ;; pos of =
+          (i2 (position #\& s))) ;; pos of &
+      (cond (i1 (cons (cons (intern (string-upcase (subseq s 0 i1)))
+                            (decode-param (subseq s (1+ i1) i2)))
+		      ;; recursively parse rest of string generating conses
+		      ;; or evaluate to nil
+                      (and i2 (parse-params (subseq s (1+ i2))))))
+            ((equal s "") nil) ;; if string is blank return nil
+            (t s))))  ;; otherwise return the string itself
