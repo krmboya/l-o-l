@@ -44,3 +44,15 @@
                       (and i2 (parse-params (subseq s (1+ i2))))))
             ((equal s "") nil) ;; if string is blank return nil
             (t s))))  ;; otherwise return the string itself
+
+(defun parse-url (s)
+  "Returns the path and query parameters from the Request header"
+  (let* ((url (subseq s
+		      (+ 2 (position #\space s))
+		      (position #\space s :from-end t))) ;;the path component
+	 (x (position #\? url)))  ;;location of ? signaling query parameters
+    ;; Return list containing path component, and optionally the
+    ;; parsed query parameters
+    (if x
+	(cons (subseq url 0 x) (parse-params (subseq url (1+ x))))
+	(cons url '()))))
