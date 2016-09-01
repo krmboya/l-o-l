@@ -56,3 +56,15 @@
     (if x
 	(cons (subseq url 0 x) (parse-params (subseq url (1+ x))))
 	(cons url '()))))
+
+(defun get-header (stream)
+  "Returns a list of header/value pairs in stream"
+  (let* ((s (read-line stream)) ;; read in line from stream
+         (h (let ((i (position #\: s))) ;; pos of delimiter :
+	      (when i 
+		(cons (intern (string-upcase (subseq s 0 i))) ;; header symbol
+		      (subseq s (+ i 2)))))))  ;; value of header
+    (when h
+      ;; prepend header/value to output of rest of stream
+      (cons h (get-header stream)))))
+
