@@ -68,3 +68,11 @@
       ;; prepend header/value to output of rest of stream
       (cons h (get-header stream)))))
 
+(defun get-content-params (stream header)
+  "Returns the parsed request body if exists"
+  (let ((length (cdr (assoc 'content-length header))))
+    (when length  ;; content-length header specified
+      ;; make a string equal in length to the content-length header
+      (let ((content (make-string (parse-integer length))))
+	(read-sequence content stream)  ;; fill up the string from stream
+	(parse-params content)))))  ;; parse the string
