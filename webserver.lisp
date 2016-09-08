@@ -76,3 +76,23 @@
       (let ((content (make-string (parse-integer length))))
 	(read-sequence content stream)  ;; fill up the string from stream
 	(parse-params content)))))  ;; parse the string
+
+
+(defun serve (request-handler)
+  """Serves a http request"""
+  (let ((socket (socket-server 8080)))  ;; bind to port 8080
+    (unwind-protect  ;; use unwind-protect to ensure socket is always closed
+	 ;; webserver loop
+	 ;; bind stream to incoming socket data
+	 (loop (with-open-stream (stream (socket-accept socket))
+		 ;; parse components of request
+                 (let* ((url    (parse-url (read-line stream)))
+                        (path   (car url))
+                        (header (get-header stream))
+                        (params (append (cdr url) 
+                                        (get-content-params stream header)))
+			;; redefine stdout to point to stream
+                        (*standard-output* stream))
+		   ;; invoke provided request handler with parsed request data
+                   (funcall request-handler path header params))))
+      (socket-server-close socket))))  ;; finally, close socket
