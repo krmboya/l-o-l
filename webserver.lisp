@@ -79,7 +79,7 @@
 
 
 (defun serve (request-handler)
-  """Serves a http request"""
+  "Serves a http request"
   (let ((socket (socket-server 8080)))  ;; bind to port 8080
     (unwind-protect  ;; use unwind-protect to ensure socket is always closed
 	 ;; webserver loop
@@ -96,3 +96,13 @@
 		   ;; invoke provided request handler with parsed request data
                    (funcall request-handler path header params))))
       (socket-server-close socket))))  ;; finally, close socket
+
+
+(defun hello-request-handler (path header params)
+  "Handler for path greeting"
+  (if (equal path "greeting")
+      (let ((name (assoc 'name params))) ;; find param name in request params
+        (if (not name)
+            (princ "<form>What is your name?<input name='name' /></form>")
+            (format t "Nice to meet you, ~a!" (cdr name))))
+      (princ "Sorry... I don't know that page.")))
