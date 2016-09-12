@@ -78,9 +78,26 @@
 	(parse-params content)))))  ;; parse the string
 
 
+(defun socket-listen (port)
+  "Returns a listening socket"
+  ;; Create an instance of the socket
+  (let ((socket (make-instance 'sb-bsd-sockets:inet-socket
+			       :type :stream :protocol :tcp)))
+    ;; reuse address on restarting
+    (setf (sb-bsd-sockets:sockopt-reuse-address socket) t)
+    (sb-bsd-sockets:socket-bind socket '(127 0 0 1) port)  ;; bind to address/port
+    (sb-bsd-sockets:socket-listen socket 1)  ;; listen with a backlog of upto 1
+    socket))
+
+(defun socket-accept (s)
+  "Return a stream bound to an accepted socket connection"
+  (sb-bsd-sockets:socket-make-stream (sb-bsd-sockets:socket-accept s)
+				     :output t
+				     :input t))
+
 (defun serve (request-handler)
   "Serves a http request"
-  (let ((socket (socket-server 8080)))  ;; bind to port 8080
+  (let ((socket (socket-listen 8080)))  ;; bind to port 8080
     (unwind-protect  ;; use unwind-protect to ensure socket is always closed
 	 ;; webserver loop
 	 ;; bind stream to incoming socket data
@@ -95,14 +112,15 @@
                         (*standard-output* stream))
 		   ;; invoke provided request handler with parsed request data
                    (funcall request-handler path header params))))
-      (socket-server-close socket))))  ;; finally, close socket
+      (sb-bsd-sockets:socket-close socket))))  ;; finally, close socket
 
 
 (defun hello-request-handler (path header params)
   "Handler for path greeting"
   (if (equal path "greeting")
-      (let ((name (assoc 'name params))) ;; find param name in request params
+      (let ((name (assoc
+		   'name params))) ;; find param name in request params
         (if (not name)
-            (princ "<form>What is your name?<input name='name' /></form>")
-            (format t "Nice to meet you, ~a!" (cdr name))))
+            (princ "<html><form>What is your name?<input name='name' /></form></html>")
+            (format t "<html>Nice to meet you, ~a!</html>" (cdr name))))
       (princ "Sorry... I don't know that page.")))
